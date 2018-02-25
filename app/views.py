@@ -9,7 +9,7 @@ from app import app
 from flask import render_template, request, redirect, url_for, flash, session, abort
 from werkzeug.utils import secure_filename
 
-
+from forms import UploadForm
 ###
 # Routing for your application.
 ###
@@ -32,15 +32,22 @@ def upload():
         abort(401)
 
     # Instantiate your form class
-
+    imageform = UploadForm()
+    
     # Validate file upload on submit
-    if request.method == 'POST':
+    if request.method == 'POST' and imageform.validate_on_submit():
         # Get file data and save to your uploads folder
+        image = imageform.photo.data
+
+        filename = secure_filename(image.filename)
+        image.save(os.path.join(
+            app.config['UPLOAD_FOLDER'], filename
+        ))
 
         flash('File Saved', 'success')
         return redirect(url_for('home'))
 
-    return render_template('upload.html')
+    return render_template('upload.html', form = imageform)
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -82,6 +89,27 @@ def send_text_file(file_name):
     """Send your static text file."""
     file_dot_text = file_name + '.txt'
     return app.send_static_file(file_dot_text)
+    
+# get Upload image exercise 2 number  1
+#@app.route('/getUpload')
+#def get_uploaded_images():
+   #doc = []
+   # for subdir, dirs, files in os.walk(app.config['UploadForm']):
+     #for file in files:
+        #if not file.startswith('.'):
+               # docs.append(file)
+    #return docs
+     
+     
+ # Exercise 2 number 2
+#@app.route('/files/', methods =['POST','GET']))
+# def files():
+    # render_template("file.html", upload_list=get_uploaded_images())
+
+    
+    
+    
+    
 
 
 @app.after_request
